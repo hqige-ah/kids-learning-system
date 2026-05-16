@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录问题诊断 - 小小学习家</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; text-align: center; }
+        .step {
+            background: #e8f5e8;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #4CAF50;
+            border-radius: 5px;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 登录问题诊断工具</h1>
+
+        <div class="step">
+            <h3>问题分析</h3>
+            <p><strong>可能原因:</strong></p>
+            <ul>
+                <li>localStorage存储异常或浏览器阻止</li>
+                <li>用户数据未正确初始化</li>
+                <li>角色创建页面逻辑有问题</li>
+                <li>事件监听器未绑定</li>
+            </ul>
+        </div>
+
+        <button onclick="checkLocalStorage()">📋 检查本地存储状态</button>
+        <button onclick="resetLoginData()">🔄 重置登录数据</button>
+        <button onclick="clearAndRestart()">🗑️ 清除数据并重启应用</button>
+
+        <div id="result" style="margin-top: 20px;"></div>
+
+        <script>
+            // 全局变量
+            let userData = null;
+            let selectedAvatar = '🦊';
+
+            function showResult(message, type = 'info') {
+                const resultDiv = document.getElementById('result');
+                const color = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff';
+                resultDiv.innerHTML = `
+                    <div style="
+                        background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
+                        border: 1px solid ${color};
+                        padding: 15px;
+                        border-radius: 5px;
+                        margin: 10px 0;
+                        color: ${type === 'error' ? '#721c24' : type === 'success' ? '#155724' : '#0c5460'};
+                    ">
+                        ${message}
+                    </div>
+                `;
+            }
+
+            function checkLocalStorage() {
+                try {
+                    showResult('正在检查本地存储...', 'info');
+
+                    // 测试localStorage功能
+                    localStorage.setItem('test', 'test_value');
+                    const testResult = localStorage.getItem('test');
+                    localStorage.removeItem('test');
+
+                    if (testResult === 'test_value') {
+                        showResult('✅ localStorage功能正常', 'success');
+
+                        // 检查现有数据
+                        const hasLoggedIn = localStorage.getItem('kidsAppLoggedIn');
+                        const savedData = localStorage.getItem('kidsLearningApp');
+
+                        showResult(`<strong>已登录状态:</strong> ${hasLoggedIn ? '是' : '否'}`, 'info');
+                        showResult(`<strong>保存的用户数据:</strong> ${savedData ? '存在' : '不存在'}`, 'info');
+
+                        if (savedData) {
+                            try {
+                                userData = JSON.parse(savedData);
+                                showResult(`<strong>用户昵称:</strong> ${userData.profile.nickname || '小朋友'}`, 'info');
+                                showResult(`<strong>当前宠物:</strong> ${userData.pets && userData.pets.length > 0 ? userData.pets[0].name : '无'}`, 'info');
+                            } catch (e) {
+                                showResult('❌ 用户数据格式错误，需要重置', 'error');
+                            }
+                        }
+                    } else {
+                        showResult('❌ localStorage功能异常，请检查浏览器设置', 'error');
+                    }
+                } catch (error) {
+                    showResult(`❌ 访问localStorage失败: ${error.message}`, 'error');
+                }
+            }
+
+            function resetLoginData() {
+                if (confirm('确定要重置登录数据吗？这将清除所有进度和宠物信息。')) {
+                    try {
+                        // 清除相关数据
+                        localStorage.removeItem('kidsAppLoggedIn');
+                        localStorage.removeItem('kidsLearningApp');
+
+                        showResult('✅ 登录数据已重置', 'success');
+                        showResult('现在可以重新进行角色创建了', 'info');
+                    } catch (error) {
+                        showResult(`❌ 重置失败: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            function clearAndRestart() {
+                if (confirm('确定要清除所有数据并重启应用吗？')) {
+                    try {
+                        // 清除所有相关存储
+                        localStorage.clear();
+
+                        showResult('✅ 所有数据已清除', 'success');
+
+                        // 创建新用户数据
+                        userData = {
+                            profile: {
+                                avatar: '🦊',
+                                nickname: '小朋友',
+                                level: 1
+                            },
+                            stats: {
+                                totalStars: 0,
+                                studyDays: 0,
+                                streak: 0,
+                                lastStudyDate: null,
+                                mathCorrect: 0,
+                                mathWrong: 0
+                            },
+                            points: {
+                                total: 0,
+                                today: 0,
+                                weekly: 0,
+                                monthly: 0
+                            },
+                            pets: [{
+                                id: 'default_pet_1',
+                                type: 'fox',
+                                name: '小狐狸',
+                                level: 1,
+                                experience: 0,
+                                happiness: 100,
+                                health: 100,
+                                skills: [],
+                                items: [],
+                                unlockedAt: new Date().toISOString(),
+                                lastInteraction: new Date().toISOString()
+                            }],
+                            dailyTasks: {
+                                date: null,
+                                completed: [],
+                                total: 4,
+                                streak: 0,
+                                extendedTasks: {
+                                    math: { completed: false, stars: 0, points: 0 },
+                                    chinese: { completed: false, stars: 0, points: 0 },
+                                    poem: { completed: false, stars: 0, points: 0 }
+                                }
+                            },
+                            badges: [],
+                            settings: {
+                                soundEnabled: true
+                            },
+                            studyCalendar: []
+                        };
+
+                        // 保存新数据
+                        localStorage.setItem('kidsLearningApp', JSON.stringify(userData));
+
+                        showResult('🎮 应用已重启，可以开始新的冒险了！', 'success');
+                        showResult('点击上方按钮重新创建角色', 'info');
+                    } catch (error) {
+                        showResult(`❌ 重启失败: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            // 模拟角色创建函数（用于测试）
+            function simulateCharacterCreation() {
+                userData.profile.avatar = selectedAvatar;
+                userData.profile.nickname = document.getElementById('nickname-input').value.trim() || '小朋友';
+                userData.stats.studyDays = 1;
+                userData.stats.lastStudyDate = new Date().toDateString();
+                userData.points.today = 0;
+
+                // 标记已登录
+                localStorage.setItem('kidsAppLoggedIn', 'true');
+
+                // 解锁默认宠物
+                userData.pets[0].unlockedAt = new Date().toISOString();
+
+                saveUserData();
+
+                showResult('🎉 角色创建成功！', 'success');
+                showResult('可以进入主页学习了', 'info');
+            }
+
+            // 页面加载时检查
+            document.addEventListener('DOMContentLoaded', function() {
+                checkLocalStorage();
+            });
+        </script>
+    </div>
+</body>
+</html>

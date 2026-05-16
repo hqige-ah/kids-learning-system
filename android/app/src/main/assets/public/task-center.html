@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#5B9BD5">
+    <title>任务中心 - 小小学习家</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 任务中心特有样式 */
+        .task-center-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn-large {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .task-summary {
+            margin: 20px 15px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 12px;
+        }
+
+        .summary-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #9C27B0;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .daily-tasks-section {
+            margin: 0 15px 20px;
+        }
+
+        .task-category {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .category-progress {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .task-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .task-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+            background: #F0F8E8;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .task-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .task-reward {
+            text-align: right;
+        }
+
+        .reward-points {
+            color: #9C27B0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .pet-growth-preview {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            margin: 0 15px 20px;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .pet-level-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 480px) {
+            .task-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 任务中心页面 -->
+        <div class="screen active">
+            <!-- 头部 -->
+            <div class="task-center-header">
+                <button class="back-btn-large" onclick="showScreen('home-screen')">‹</button>
+                <h1>📋 任务中心</h1>
+                <p>完成任务，获得积分，培养宠物！</p>
+            </div>
+
+            <!-- 今日任务摘要 -->
+            <div class="task-summary">
+                <div class="summary-item">
+                    <div class="summary-number" id="today-tasks-completed">0</div>
+                    <div class="summary-label">已完成任务</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" id="today-points-earned">0</div>
+                    <div class="summary-label">今日积分</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" id="current-streak">0</div>
+                    <div class="summary-label">连续天数</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" id="total-pet-exp">0</div>
+                    <div class="summary-label">宠物经验</div>
+                </div>
+            </div>
+
+            <!-- 宠物成长预览 -->
+            <div class="pet-growth-preview">
+                <h3>🐾 我的宠物成长</h3>
+                <div class="pet-level-display">
+                    <span id="pet-name-preview">小狐狸</span> Lv.<span id="pet-level-preview">1</span>
+                </div>
+                <div style="margin: 10px 0;">
+                    <span class="pet-happiness-preview">😊 <span id="pet-happiness-preview">100%</span></span>
+                    <span class="pet-health-preview">❤️ <span id="pet-health-preview">100%</span></span>
+                </div>
+                <div style="font-size: 14px; opacity: 0.9;">距离下一级还需 <span id="exp-to-next">0</span> 经验</div>
+            </div>
+
+            <!-- 今日任务分类 -->
+            <div class="daily-tasks-section">
+                <div class="task-category math-category">
+                    <div class="category-header">
+                        <div>
+                            <span class="category-title">🔢 数学任务</span>
+                            <div class="category-progress">
+                                <span id="math-task-status">0/15题</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-grid">
+                        <div class="task-card" id="math-calculations">
+                            <div class="task-info">
+                                <div class="task-title">基础计算练习</div>
+                                <div class="task-description">完成10道100以内加减法</div>
+                            </div>
+                            <div class="task-reward">
+                                <div class="reward-points">+20分</div>
+                                <div class="task-status" id="math-calc-status">未开始</div>
+                            </div>
+                        </div>
+                        <div class="task-card" id="math-word-problems">
+                            <div class="task-info">
+                                <div class="task-title">应用题挑战</div>
+                                <div class="task-description">解决5道简单应用题</div>
+                            </div>
+                            <div class="task-reward">
+                                <div class="reward-points">+30分</div>
+                                <div class="task-status" id="math-problem-status">未开始</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-category chinese-category">
+                    <div class="category-header">
+                        <div>
+                            <span class="category-title">🏰 汉字任务</span>
+                            <div class="category-progress">
+                                <span id="chinese-task-status">0/5字</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-grid">
+                        <div class="task-card" id="chinese-writing">
+                            <div class="task-info">
+                                <div class="task-title">汉字书写练习</div>
+                                <div class="task-description">练习5个新汉字</div>
+                            </div>
+                            <div class="task-reward">
+                                <div class="reward-points">+25分</div>
+                                <div class="task-status" id="chinese-write-status">未开始</div>
+                            </div>
+                        </div>
+                        <div class="task-card" id="chinese-vocabulary">
+                            <div class="task-info">
+                                <div class="task-title">词语积累</div>
+                                <div class="task-description">学习10个常用词语</div>
+                            </div>
+                            <div class="task-reward">
+                                <div class="reward-points">+20分</div>
+                                <div class="task-status" id="chinese-vocab-status">未开始</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-category poem-category">
+                    <div class="category-header">
+                        <div>
+                            <span class="category-title">📜 古诗任务</span>
+                            <div class="category-progress">
+                                <span id="poem-task-status">0/1首</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-grid">
+                        <div class="task-card" id="poem-recitation">
+                            <div class="task-info">
+                                <div class="task-title">古诗背诵</div>
+                                <div class="task-description">背诵《静夜思》全文</div>
+                            </div>
+                            <div class="task-reward">
+                                <div class="reward-points">+30分</div>
+                                <div class="task-status" id="poem-recite-status">未开始</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷操作 -->
+            <div style="margin: 0 15px 80px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="action-btn primary" onclick="quickStartTask()">🚀 快速开始</button>
+                    <button class="action-btn secondary" onclick="showPetHouse()">🏠 前往宠物小屋</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="points.js"></script>
+    <script src="pet.js"></script>
+    <script>
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTaskCenter();
+        });
+
+        function initializeTaskCenter() {
+            // 更新任务中心显示
+            updateTaskCenterDisplay();
+
+            // 设置定时器持续更新
+            setInterval(updateTaskCenterDisplay, 2000);
+        }
+
+        function updateTaskCenterDisplay() {
+            // 获取当前用户数据
+            if (!userData) return;
+
+            const today = new Date().toDateString();
+            const completedTasks = userData.dailyTasks.completed || [];
+            const totalTasks = userData.dailyTasks.total || 4;
+
+            // 更新今日任务完成情况
+            document.getElementById('today-tasks-completed').textContent =
+                completedTasks.filter(task => task !== 'game').length;
+
+            // 更新今日积分
+            document.getElementById('today-points-earned').textContent = userData.points.today || 0;
+
+            // 更新连续天数
+            document.getElementById('current-streak').textContent = userData.stats.streak || 0;
+
+            // 更新宠物经验
+            const petExp = userData.pets && userData.pets[0] ? userData.pets[0].experience : 0;
+            document.getElementById('total-pet-exp').textContent = Math.floor(petExp);
+
+            // 更新宠物信息
+            if (userData.pets && userData.pets.length > 0) {
+                const pet = userData.pets[0];
+                document.getElementById('pet-name-preview').textContent = pet.name;
+                document.getElementById('pet-level-preview').textContent = pet.level;
+                document.getElementById('pet-happiness-preview').textContent = pet.happiness + '%';
+                document.getElementById('pet-health-preview').textContent = pet.health + '%';
+
+                // 计算到下一级的经验需求
+                const currentLevelExp = pet.level * pet.level * 100;
+                const nextLevelExp = (pet.level + 1) * (pet.level + 1) * 100;
+                const expToNext = nextLevelExp - pet.experience;
+                document.getElementById('exp-to-next').textContent = expToNext;
+            }
+
+            // 更新任务状态
+            updateTaskStatuses(completedTasks);
+        }
+
+        function updateTaskStatuses(completedTasks) {
+            // 数学任务状态
+            const mathTasks = ['math_calculations', 'math-word-problems'];
+            mathTasks.forEach(taskId => {
+                const statusEl = document.getElementById(taskId.replace('-', '') + '-status');
+                if (statusEl) {
+                    statusEl.textContent = completedTasks.includes('math') ? '已完成' : '未开始';
+                }
+            });
+
+            // 汉字任务状态
+            const chineseTasks = ['chinese-writing', 'chinese-vocabulary'];
+            chineseTasks.forEach(taskId => {
+                const statusEl = document.getElementById(taskId.replace('-', '') + '-status');
+                if (statusEl) {
+                    statusEl.textContent = completedTasks.includes('chinese') ? '已完成' : '未开始';
+                }
+            });
+
+            // 古诗任务状态
+            const poemTasks = ['poem-recitation'];
+            poemTasks.forEach(taskId => {
+                const statusEl = document.getElementById(taskId.replace('-', '') + '-status');
+                if (statusEl) {
+                    statusEl.textContent = '未开始'; // 简化处理
+                }
+            });
+        }
+
+        function quickStartTask() {
+            // 根据优先级推荐下一个任务
+            const today = new Date().toDateString();
+            const completedTasks = userData?.dailyTasks?.completed || [];
+
+            let recommendedTask = null;
+
+            if (!completedTasks.includes('math')) {
+                recommendedTask = '数学乐园';
+                showScreen('math-screen');
+            } else if (!completedTasks.includes('chinese')) {
+                recommendedTask = '汉字城堡';
+                showScreen('chinese-screen');
+            } else if (!completedTasks.includes('pinyin')) {
+                recommendedTask = '拼音王国';
+                showScreen('pinyin-screen');
+            } else {
+                alert('恭喜！您已经完成了所有主要任务！可以尝试新的挑战或玩游戏放松一下。');
+            }
+        }
+
+        function showPetHouse() {
+            // 这里可以创建一个宠物小屋页面，或者跳转到现有相关页面
+            alert('宠物小屋功能正在开发中，敬请期待！');
+        }
+    </script>
+</body>
+</html>

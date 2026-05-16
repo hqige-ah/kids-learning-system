@@ -1,0 +1,23 @@
+var fs=require('fs')
+var app=fs.readFileSync('app.js','utf8')
+var html=fs.readFileSync('index.html','utf8')
+var css=fs.readFileSync('styles.css','utf8')
+var c=[]
+c.push(['inner screen',html.includes('daily-quiz-screen')])
+c.push(['tab bar',html.includes('dq-tabs')])
+c.push(['4 tabs exist',html.includes('dq-tab-pinyin')&&html.includes('dq-tab-chinese')&&html.includes('dq-tab-math')&&html.includes('dq-tab-english')])
+c.push(['no modal in html',!html.includes('daily-quiz-modal')])
+c.push(['no modal in app',!app.includes('daily-quiz-modal')])
+c.push(['openDQ jumps to screen',app.includes('daily-quiz-screen')])
+c.push(['perSubject',app.includes('perSubject')])
+c.push(['switchDailyTab fn',app.includes('switchDailyTab(')])
+c.push(['showSubjectComplete fn',app.includes('showSubjectComplete(')])
+c.push(['tab done badge',app.includes('dq-tab-done')])
+c.push(['closeDQ returns home',app.includes('home-screen')])
+c.push(['CSS screen style',css.includes('#daily-quiz-screen')])
+c.push(['CSS tabs row',css.includes('.dq-tabs')])
+c.push(['CSS main area',css.includes('.dq-main')])
+c.push(['no modal CSS left',!css.includes('.daily-quiz-content')])
+var ok=0,fail=0
+for(var i=0;i<c.length;i++){console.log((c[i][1]?'pass':'FAIL')+' '+c[i][0]);if(c[i][1])ok++;else fail++}
+console.log(ok+' pass / '+fail+' fail')

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分宠物系统概览 - 小小学习家</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #9C27B0;
+        }
+        .section h2 {
+            color: #9C27B0;
+            margin-top: 0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        .feature-title {
+            font-weight: bold;
+            color: #9C27B0;
+            margin-bottom: 10px;
+        }
+        .feature-desc {
+            color: #666;
+            font-size: 14px;
+        }
+        .demo-preview {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .pet-preview {
+            text-align: center;
+            font-size: 2em;
+        }
+        .points-preview {
+            text-align: center;
+            color: #9C27B0;
+        }
+        .points-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .steps-list {
+            list-style: none;
+            padding: 0;
+        }
+        .steps-list li {
+            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .tech-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+            .demo-preview {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 积分宠物系统</h1>
+            <p>小小学习家的全新学习激励体系</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>✨ 系统特色</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">💎</div>
+                        <div class="feature-title">积分奖励</div>
+                        <div class="feature-desc">完成任务获得积分，提升学习积极性</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🐾</div>
+                        <div class="feature-title">宠物养成</div>
+                        <div class="feature-desc">通过积分喂养宠物，培养责任感</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">智能成长</div>
+                        <div class="feature-desc">AI驱动的动态难度调整</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏆</div>
+                        <div class="feature-title">成就系统</div>
+                        <div class="feature-desc">丰富的徽章和等级体系</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎯 核心功能</h2>
+                <ol class="steps-list">
+                    <li><strong>每日任务系统</strong>: 数学+汉字+古诗+游戏四大模块</li>
+                    <li><strong>积分计算算法</strong>: 基于表现、时间效率的智能化评分</li>
+                    <li><strong>宠物成长机制</strong>: 经验值+等级+技能解锁</li>
+                    <li><strong>互动系统</strong>: 喂食+清洁+训练+装饰</li>
+                    <li><strong>数据持久化</strong>: localStorage本地存储</li>
+                </ol>
+            </div>
+
+            <div class="section">
+                <h2>📱 技术架构</h2>
+                <div class="tech-stack">
+                    <span class="tech-tag">JavaScript ES6+</span>
+                    <span class="tech-tag">LocalStorage</span>
+                    <span class="tech-tag">面向对象设计</span>
+                    <span class="tech-tag">模块化开发</span>
+                    <span class="tech-tag">响应式UI</span>
+                    <span class="tech-tag">Capacitor原生支持</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎮 演示预览</h2>
+                <div class="demo-preview">
+                    <div class="pet-preview">
+                        <div>🦊 小狐狸 Lv.3</div>
+                        <div>😊 快乐度: 95%</div>
+                        <div>❤️ 健康度: 92%</div>
+                    </div>
+                    <div class="points-preview">
+                        <div class="points-number">今日积分: 60</div>
+                        <div class="points-number">总积分: 320</div>
+                        <div style="margin-top: 10px;">距离下一级还需 180 经验</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 开发进度</h2>
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div style="flex: 1; min-width: 200px; background: white; padding: 15px; border-radius: 10px;">
+                        <h3 style="color: #4CAF50; margin: 0;">✅ 已完成</h3>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>用户数据结构扩展</li>
+                            <li>积分系统核心模块</li>
+                            <li>宠物成长系统</li>
+                            <li>UI界面改造</li>
+                            <li>数据持久化集成</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1; min-width: 200px; background: white; padding: 15px; border-radius: 10px;">
+                        <h3 style="color: #FF9800; margin: 0;">🔄 进行中</h3>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>任务完成判定逻辑</li>
+                            <li>宠物交互功能</li>
+                            <li>商店系统开发</li>
+                            <li>性能优化</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📁 创建的文件</h2>
+                <div style="background: white; padding: 20px; border-radius: 10px;">
+                    <h3>核心功能文件:</h3>
+                    <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;">www/
+├── app.js (已修改)
+│   └── 扩展userData结构，添加points和pets字段
+├── points.js (新建)
+│   └── 积分系统核心模块
+├── pet.js (新建)
+│   └── 宠物养成系统
+├── index.html (已修改)
+│   └── 添加宠物状态栏和积分显示
+└── styles.css (已修改)
+    └── 新增宠物和积分相关样式</pre>
+                    
+                    <h3>新页面:</h3>
+                    <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;">www/
+├── task-center.html (新建)
+│   └── 任务中心页面
+├── test-points.html (新建)
+│   └── 积分系统测试工具
+├── demo.html (新建)
+│   └── 积分宠物系统演示
+└── SYSTEM_OVERVIEW.html (本文件)
+    └── 系统概览文档</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>🎓 小小学习家 - 积分宠物系统</h3>
+            <p>专为一年级学生设计的完整学习激励体系 | 基于现有代码架构升级</p>
+            <p style="font-size: 14px; opacity: 0.8;">开发周期: 7天 | 预计完成时间: 2026年5月19日</p>
+        </div>
+    </div>
+</body>
+</html>

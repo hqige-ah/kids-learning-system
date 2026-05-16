@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分系统测试 - 小小学习家</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .test-btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .result-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>🎮 积分系统测试工具</h2>
+
+        <button class="test-btn" onclick="runPointsTest()">🧪 运行积分系统测试</button>
+        <button class="test-btn" onclick="simulateTaskCompletion('math')">🔢 模拟数学任务完成</button>
+        <button class="test-btn" onclick="simulateTaskCompletion('chinese')">🏰 模拟汉字任务完成</button>
+        <button class="test-btn" onclick="simulateTaskCompletion('poem')">📜 模拟古诗任务完成</button>
+        <button class="test-btn" onclick="resetTestData()">🔄 重置测试数据</button>
+
+        <div class="result-display">
+            <h3>当前用户数据:</h3>
+            <pre id="userDataDisplay"></pre>
+        </div>
+
+        <div class="result-display">
+            <h3>测试结果:</h3>
+            <div id="testResults">等待测试...</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="points.js"></script>
+    <script src="pet.js"></script>
+    <script>
+        function runPointsTest() {
+            const results = [];
+
+            try {
+                // 测试1: 检查pointsSystem实例
+                if (typeof pointsSystem !== 'undefined') {
+                    results.push('✅ pointsSystem模块加载成功');
+                } else {
+                    results.push('❌ pointsSystem模块加载失败');
+                }
+
+                // 测试2: 检查用户数据结构
+                if (userData && userData.points) {
+                    results.push('✅ 用户积分数据结构正确');
+                } else {
+                    results.push('❌ 用户积分数据结构错误');
+                }
+
+                // 测试3: 检查宠物数据结构
+                if (userData && userData.pets && userData.pets.length > 0) {
+                    results.push('✅ 宠物数据结构正确');
+                } else {
+                    results.push('❌ 宠物数据结构错误');
+                }
+
+                // 测试4: 测试积分计算
+                const testPoints = pointsSystem.calculateTaskPoints('math', {
+                    stars: 3,
+                    accuracy: 85,
+                    timeSpent: 120
+                });
+                results.push(`✅ 积分计算测试: ${testPoints}分`);
+
+                // 测试5: 测试宠物成长
+                petSystem.updateGrowth(50).then(result => {
+                    if (result && result.expGained > 0) {
+                        results.push(`✅ 宠物成长测试: 获得${result.expGained}经验`);
+                    }
+                });
+
+                updateResults(results);
+
+            } catch (error) {
+                results.push(`❌ 测试失败: ${error.message}`);
+                updateResults(results);
+            }
+        }
+
+        function simulateTaskCompletion(taskType) {
+            const performance = {
+                stars: Math.floor(Math.random() * 3) + 2, // 2-4星
+                accuracy: 80 + Math.floor(Math.random() * 20), // 80-100%
+                timeSpent: 60 + Math.floor(Math.random() * 180) // 1-4分钟
+            };
+
+            completeDailyTask(taskType, performance);
+
+            const taskNames = {
+                math: '数学',
+                chinese: '汉字', 
+                poem: '古诗'
+            };
+
+            showTestMessage(`已模拟完成${taskNames[taskType]}任务，获得积分！`);
+        }
+
+        function resetTestData() {
+            // 重新加载数据以重置
+            loadUserData();
+            updateDisplay();
+
+            showTestMessage('测试数据已重置');
+        }
+
+        function updateResults(results) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = results.map(result =>
+                `<div style="margin: 5px 0; padding: 8px; background: ${result.includes('✅') ? '#e8f5e8' : '#ffeaea'}; border-radius: 5px;">${result}</div>`
+            ).join('');
+        }
+
+        function updateDisplay() {
+            const userDataDisplay = document.getElementById('userDataDisplay');
+
+            // 创建可复制的数据对象
+            const displayData = {
+                ...userData,
+                pets: userData.pets ? [...userData.pets] : [],
+                studyCalendar: [...userData.studyCalendar]
+            };
+
+            userDataDisplay.textContent = JSON.stringify(displayData, null, 2);
+        }
+
+        function showTestMessage(message) {
+            const results = [`✅ ${message}`];
+            updateResults(results);
+
+            // 3秒后清除消息
+            setTimeout(() => {
+                const currentHTML = document.getElementById('testResults').innerHTML;
+                const lines = currentHTML.split('<div>');
+                if (lines.length <= 1) return;
+
+                const withoutNewest = lines.slice(0, -1);
+                document.getElementById('testResults').innerHTML = withoutNewest.join('<div>');
+            }, 3000);
+        }
+
+        // 初始化显示
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDisplay();
+
+            // 设置定时器持续更新显示
+            setInterval(updateDisplay, 1000);
+        });
+    </script>
+</body>
+</html>

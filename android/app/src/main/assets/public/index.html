@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#5B9BD5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>小小学习家</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* 原生APP样式优化 */
+        html, body {
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        body {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+        /* 隐藏原生启动页后的应用启动页 */
+        .native-app #splash-screen {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 启动页 -->
+        <div id="splash-screen" class="screen active">
+            <div class="splash-content">
+                <div class="logo-bounce">🌟</div>
+                <h1 class="app-title">小小学习家</h1>
+                <p class="app-subtitle">幼小衔接趣味学习</p>
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 角色创建页 -->
+        <div id="character-creation" class="screen">
+            <div class="creation-content">
+                <h2>👋 你好呀！</h2>
+                <p class="creation-hint">选择你的小伙伴开始学习吧！</p>
+
+                <div class="avatar-selection">
+                    <div class="avatar-option" data-avatar="🦊" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🦊</span>
+                        <span class="avatar-name">小狐狸</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="🐰" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🐰</span>
+                        <span class="avatar-name">小兔子</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="🐻" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🐻</span>
+                        <span class="avatar-name">小熊</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="🐼" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🐼</span>
+                        <span class="avatar-name">小熊猫</span>
+                    </div>
+                </div>
+
+                <div class="nickname-input">
+                    <label>给我起个名字吧：</label>
+                    <input type="text" id="nickname-input" placeholder="输入你的名字" maxlength="8">
+                </div>
+
+                <button class="btn btn-primary btn-large" onclick="createCharacter()">
+                    开始冒险！🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- 主页/学习中心 -->
+        <div id="home-screen" class="screen">
+            <!-- 顶部状态栏 -->
+            <div class="top-bar">
+                <div class="user-info" onclick="showScreen('profile-screen')">
+                    <span class="user-avatar" id="home-avatar">🦊</span>
+                    <span class="user-name" id="home-nickname">小朋友</span>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-icon">💎</span>
+                        <span class="stat-value" id="total-points">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🔥</span>
+                        <span class="stat-value" id="home-streak">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 宠物状态栏 -->
+            <div class="pet-status-bar">
+                <div class="pet-info" onclick="showPetHouse()" style="cursor:pointer">
+                    <span id="current-pet-icon">🦊</span>
+                    <span id="current-pet-name">小狐狸 Lv.1</span>
+                    <span class="pet-happiness" id="pet-happiness-display">😊 100%</span>
+                </div>
+                <div class="pet-actions">
+                    <span class="today-points">今日积分: <strong id="today-points">0</strong></span>
+                    <button class="btn-pet-shop" onclick="showPetShop()">🛒 商店</button>
+                </div>
+            </div>
+
+            <!-- 今日任务 -->
+            <div class="daily-task-card enhanced">
+                <div class="card-header">
+                    <span class="card-icon">📋</span>
+                    <span class="card-title">今日任务</span>
+                    <span class="task-progress" id="daily-progress">0/7</span>
+                </div>
+                <div class="task-list">
+                    <div class="task-item" id="pinyin-task" onclick="startTask('pinyin')">
+                        <span class="task-name">🔤 拼音练习</span>
+                        <span class="task-reward">+15分</span>
+                        <div class="task-status" id="pinyin-task-status">
+                            <span class="status-indicator">○</span>
+                        </div>
+                    </div>
+                    <div class="task-item" id="math-task" onclick="startTask('math')">
+                        <span class="task-name">🔢 数学乐园</span>
+                        <span class="task-reward">+20分</span>
+                        <div class="task-status" id="math-task-status">
+                            <span class="status-indicator">○</span>
+                        </div>
+                    </div>
+                    <div class="task-item" id="chinese-task" onclick="startTask('chinese')">
+                        <span class="task-name">🏰 汉字城堡</span>
+                        <span class="task-reward">+25分</span>
+                        <div class="task-status" id="chinese-task-status">
+                            <span class="status-indicator">○</span>
+                        </div>
+                    </div>
+                    <div class="task-item" id="english-task" onclick="startTask('english')">
+                        <span class="task-name">🔤 英语启蒙</span>
+                        <span class="task-reward">+20分</span>
+                        <div class="task-status" id="english-task-status">
+                            <span class="status-indicator">○</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="daily-progress-bar" style="width: 0%"></div>
+                </div>
+                <p class="task-hint">完成任务获得积分，提升宠物等级！</p>
+            </div>
+
+            <!-- 学习模块 -->
+            <div class="module-grid">
+                <div class="module-card module-pinyin" onclick="showScreen('pinyin-screen')">
+                    <div class="module-icon">📖</div>
+                    <div class="module-info">
+                        <h3>拼音王国</h3>
+                        <div class="module-progress">
+                            <div class="mini-progress">
+                                <div class="mini-progress-fill" id="pinyin-progress" style="width: 0%"></div>
+                            </div>
+                            <span id="pinyin-percent">0%</span>
+                        </div>
+                    </div>
+                    <div class="module-arrow">›</div>
+                </div>
+
+                <div class="module-card module-chinese" onclick="showScreen('chinese-screen')">
+                    <div class="module-icon">🏰</div>
+                    <div class="module-info">
+                        <h3>汉字城堡 <span class="badge-small">500字</span></h3>
+                        <div class="module-progress">
+                            <div class="mini-progress">
+                                <div class="mini-progress-fill" id="chinese-progress" style="width: 0%"></div>
+                            </div>
+                            <span id="chinese-percent">0%</span>
+                        </div>
+                    </div>
+                    <div class="module-arrow">›</div>
+                </div>
+
+                <div class="module-card module-math" onclick="showScreen('math-screen')">
+                    <div class="module-icon">🔢</div>
+                    <div class="module-info">
+                        <h3>数字乐园 <span class="badge-small">200以内</span></h3>
+                        <div class="module-progress">
+                            <div class="mini-progress">
+                                <div class="mini-progress-fill" id="math-progress" style="width: 0%"></div>
+                            </div>
+                            <span id="math-percent">0%</span>
+                        </div>
+                    </div>
+                    <div class="module-arrow">›</div>
+                </div>
+
+                <div class="module-card module-english" onclick="showScreen('english-screen')">
+                    <div class="module-icon">🔤</div>
+                    <div class="module-info">
+                        <h3>英文单词</h3>
+                        <div class="module-progress">
+                            <div class="mini-progress">
+                                <div class="mini-progress-fill" id="english-progress" style="width: 0%"></div>
+                            </div>
+                            <span id="english-percent">0%</span>
+                        </div>
+                    </div>
+                    <div class="module-arrow">›</div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="bottom-nav">
+                <div class="nav-item active" data-screen="home-screen">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">学习</span>
+                </div>
+                <div class="nav-item" data-screen="game-screen" onclick="showScreen('game-screen')">
+                    <span class="nav-icon">🎮</span>
+                    <span class="nav-label">游戏</span>
+                </div>
+                <div class="nav-item" data-screen="profile-screen" onclick="showScreen('profile-screen')">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">我的</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 拼音学习页 -->
+        <div id="pinyin-screen" class="screen">
+            <div class="page-header">
+                <button class="back-btn" id="pinyin-back-btn" onclick="handlePinyinBack()">‹</button>
+                <h2 id="pinyin-header-title">📖 拼音王国</h2>
+                <div class="header-stars">⭐ <span id="pinyin-stars">0</span></div>
+            </div>
+
+            <div class="learning-content">
+                <div class="lesson-tabs pinyin-tabs">
+                    <button class="tab-btn active" onclick="switchPinyinTab('vowels')">单韵母</button>
+                    <button class="tab-btn" onclick="switchPinyinTab('consonants')">声母</button>
+                    <button class="tab-btn" onclick="switchPinyinTab('wholeSyllables')">整体认读</button>
+                    <button class="tab-btn" onclick="switchPinyinTab('practice')">拼读练习</button>
+                </div>
+
+                <div id="pinyin-vowels" class="pinyin-grid">
+                    <!-- 动态生成 -->
+                </div>
+
+                <div id="pinyin-consonants" class="pinyin-grid" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+
+                <div id="pinyin-wholeSyllables" class="pinyin-grid" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+
+                <!-- 拼读练习区域 -->
+                <div id="pinyin-practice" class="pinyin-practice" style="display: none;">
+                    <!-- 模式选择 -->
+                    <div id="practice-modes">
+                        <div class="practice-mode-card" onclick="startFreePractice()">
+                            <div class="mode-icon">🎯</div>
+                            <h3>自由拼读</h3>
+                            <p>自己选择声母和韵母，看拼读效果</p>
+                        </div>
+                        <div class="practice-mode-card" onclick="startGuidedPractice()">
+                            <div class="mode-icon">📚</div>
+                            <h3>跟读练习</h3>
+                            <p>看动画学拼读，一步一步来</p>
+                        </div>
+                        <div class="practice-mode-card" onclick="startQuizPractice()">
+                            <div class="mode-icon">🏆</div>
+                            <h3>闯关模式</h3>
+                            <p>听音选声母韵母，比比谁厉害</p>
+                        </div>
+                    </div>
+
+                    <!-- 自由拼读 -->
+                    <div id="practice-free" class="practice-screen" style="display: none;">
+                        <!-- 声母选择 -->
+                        <div class="selector-section">
+                            <div class="selector-label">选择声母：</div>
+                            <div class="consonant-selector" id="free-consonants"></div>
+                        </div>
+                        
+                        <!-- 韵母选择 -->
+                        <div class="selector-section">
+                            <div class="selector-label">选择韵母：</div>
+                            <div class="vowel-selector" id="free-vowels"></div>
+                        </div>
+                        
+                        <!-- 四声切换 -->
+                        <div class="tone-section">
+                            <div class="selector-label">选择声调：</div>
+                            <div class="tone-buttons" id="free-tones">
+                                <button class="tone-btn active" onclick="selectFreeTone(1)">ā 一声</button>
+                                <button class="tone-btn" onclick="selectFreeTone(2)">á 二声</button>
+                                <button class="tone-btn" onclick="selectFreeTone(3)">ǎ 三声</button>
+                                <button class="tone-btn" onclick="selectFreeTone(4)">à 四声</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 拼读结果 -->
+                        <div class="combine-result" id="free-result">
+                            <div class="combine-animation">
+                                <div class="combine-char consonant-char" id="free-consonant-display">b</div>
+                                <div class="combine-arrow">+</div>
+                                <div class="combine-char vowel-char" id="free-vowel-display">a</div>
+                                <div class="combine-arrow">=</div>
+                                <div class="combine-result-char" id="free-syllable-display">bā</div>
+                            </div>
+                            <button class="btn btn-sound btn-large" onclick="playFreeSyllable()">🔊 点击听发音</button>
+                        </div>
+                    </div>
+
+                    <!-- 闯关模式 -->
+                    <div id="practice-quiz" class="practice-screen" style="display: none;">
+                        <div id="quiz-game">
+                            <div class="quiz-header">
+                                <span id="quiz-progress">第 1/10 题</span>
+                                <span>⭐ <span id="quiz-score">0</span></span>
+                                <span>🔥 <span id="quiz-streak">0</span>连击</span>
+                            </div>
+                            
+                            <div class="quiz-audio-box">
+                                <button class="quiz-sound-btn" onclick="replayQuizAudio()">
+                                    🔊
+                                </button>
+                                <span class="quiz-hint-text">点击播放，听一听</span>
+                            </div>
+                            
+                            <div class="quiz-question">
+                                <span id="quiz-question-type">请选择韵母：</span>
+                            </div>
+                            
+                            <div class="quiz-options" id="quiz-options"></div>
+                            
+                            <div class="quiz-feedback" id="quiz-feedback" style="display: none;"></div>
+                        </div>
+                        
+                        <div id="quiz-complete" style="display: none;">
+                            <div class="quiz-result-box">
+                                <h3 id="quiz-complete-title">闯关完成！</h3>
+                                <div class="quiz-final-score">
+                                    <span>⭐ <span id="quiz-final-score">0</span></span>
+                                </div>
+                                <div class="quiz-streak-info">
+                                    最高连击：🔥 <span id="quiz-max-streak">0</span>
+                                </div>
+                            </div>
+                            <p id="quiz-complete-msg"></p>
+                            <div class="practice-actions">
+                                <button class="btn btn-primary" onclick="startQuiz()">再来一次</button>
+                                <button class="btn" onclick="showPracticeModes()">返回选择</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 跟读练习 -->
+                    <div id="practice-guided" class="guided-practice-container" style="display: none;">
+                        <!-- 固定的动画区域 -->
+                        <div id="guided-animation">
+                            <!-- 拼读动画区域 -->
+                            <div class="pindou-animation">
+                                <div class="pindou-step" id="step-1">
+                                    <div class="step-char consonant-char">b</div>
+                                    <div class="step-label">声母</div>
+                                </div>
+                                <div class="pindou-arrow" id="arrow-1">+</div>
+                                <div class="pindou-step" id="step-2">
+                                    <div class="step-char vowel-char">a</div>
+                                    <div class="step-label">韵母</div>
+                                </div>
+                                <div class="pindou-arrow" id="arrow-2">=</div>
+                                <div class="pindou-step pindou-result" id="step-3">
+                                    <div class="step-char">bā</div>
+                                    <div class="step-label">音节</div>
+                                </div>
+                            </div>
+                            <div class="pindou-controls">
+                                <button class="btn" onclick="playGuidedAudio(1)">🔊听声母</button>
+                                <button class="btn" onclick="playGuidedAudio(2)">🔊听韵母</button>
+                                <button class="btn btn-primary" onclick="playGuidedAudio(3)">🔊听音节</button>
+                            </div>
+                        </div>
+                        <!-- 可滚动的音节列表区域 -->
+                        <div class="guided-example-list" id="guided-examples"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 拼音学习详情 -->
+        <div id="pinyin-detail" class="screen">
+            <div class="page-header">
+                <button class="back-btn" onclick="showScreen('pinyin-screen')">‹</button>
+                <h2 id="pinyin-detail-title">学习拼音</h2>
+                <div class="header-stars">⭐ <span id="pinyin-detail-stars">0</span></div>
+            </div>
+
+            <div class="learning-detail">
+                <div class="pinyin-display">
+                    <span class="big-pinyin" id="current-pinyin">a</span>
+                </div>
+
+                <div class="pinyin-info">
+                    <p class="pinyin-name" id="pinyin-name">阿阿阿</p>
+                    <p class="pinyin-tip" id="pinyin-tip">嘴巴张大，声音响亮</p>
+                </div>
+
+                <!-- 四声调按钮 -->
+                <div class="tone-selector" id="tone-selector">
+                    <button class="tone-btn" id="tone-btn-1" onclick="playPinyinSound(1)">ā 一声</button>
+                    <button class="tone-btn" id="tone-btn-2" onclick="playPinyinSound(2)">á 二声</button>
+                    <button class="tone-btn" id="tone-btn-3" onclick="playPinyinSound(3)">ǎ 三声</button>
+                    <button class="tone-btn" id="tone-btn-4" onclick="playPinyinSound(4)">à 四声</button>
+                </div>
+
+                <button class="btn btn-sound" onclick="playPinyinSound(1)">
+                    🔊 听发音
+                </button>
+
+                <div class="practice-section">
+                    <h3>✍️ 跟着写一写</h3>
+                    <canvas id="writing-canvas" width="280" height="200"></canvas>
+                    <div class="canvas-buttons">
+                        <button class="btn btn-small" onclick="clearCanvas()">清除</button>
+                        <button class="btn btn-small btn-primary" onclick="submitWriting()">完成✓</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-large" onclick="completePinyin()">
+                    学会了！下一课 →
+                </button>
+            </div>
+        </div>
+
+        <!-- 数学学习页 - 升级版 -->
+        <div id="math-screen" class="screen">
+            <div class="page-header">
+                <button class="back-btn" onclick="showScreen('home-screen')">‹</button>
+                <h2>🔢 数字乐园</h2>
+                <div class="header-stars">⭐ <span id="math-stars">0</span></div>
+            </div>
+
+            <div class="learning-content">
+                <div class="lesson-tabs math-tabs">
+                    <button class="tab-btn active" onclick="switchMathTab('numbers', this)">认数字</button>
+                    <button class="tab-btn" onclick="switchMathTab('calculate', this)">算一算</button>
+                    <button class="tab-btn" onclick="switchMathTab('wordProblems', this)">应用题</button>
+                </div>
+
+                <!-- 认数字 1-200 -->
+                <div id="math-numbers" class="number-section">
+                    <div class="number-range-selector">
+                        <button class="range-btn active" onclick="setNumberRange(1, 50, this)">1-50</button>
+                        <button class="range-btn" onclick="setNumberRange(51, 100, this)">51-100</button>
+                        <button class="range-btn" onclick="setNumberRange(101, 150, this)">101-150</button>
+                        <button class="range-btn" onclick="setNumberRange(151, 200, this)">151-200</button>
+                    </div>
+                    <div class="number-grid" id="number-grid">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 运算练习 -->
+                <div id="math-calculate" class="game-area" style="display: none;">
+                    <div class="calc-settings">
+                        <div class="setting-row">
+                            <label>运算类型：</label>
+                            <div class="op-selector">
+                                <button class="op-btn active" data-op="+" onclick="setOperation('+', this)">➕ 加法</button>
+                                <button class="op-btn" data-op="-" onclick="setOperation('-', this)">➖ 减法</button>
+                                <button class="op-btn" data-op="*" onclick="setOperation('×', this)">✖️ 乘法</button>
+                                <button class="op-btn" data-op="/" onclick="setOperation('÷', this)">➗ 除法</button>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <label>难度等级：</label>
+                            <div class="level-selector">
+                                <button class="level-btn active" data-level="1" onclick="setLevel(1, this)">⭐ 简单</button>
+                                <button class="level-btn" data-level="2" onclick="setLevel(2, this)">⭐⭐ 中等</button>
+                                <button class="level-btn" data-level="3" onclick="setLevel(3, this)">⭐⭐⭐ 困难</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="math-game">
+                        <div class="math-stats">
+                            <span>正确: <strong id="correct-count">0</strong></span>
+                            <span>错误: <strong id="wrong-count">0</strong></span>
+                        </div>
+                        <p class="math-question" id="math-question">? + ? = ?</p>
+                        <div class="math-options" id="math-options">
+                            <!-- 动态生成 -->
+                        </div>
+                        <button class="btn btn-primary" onclick="generateMathQuestion()">下一题 →</button>
+                    </div>
+                </div>
+
+                <!-- 应用题 -->
+                <div id="math-wordProblems" class="game-area" style="display: none;">
+                    <div class="word-problem-settings">
+                        <div class="setting-row">
+                            <label>题目类型：</label>
+                            <div class="wp-type-selector">
+                                <button class="wp-btn active" data-type="add" onclick="setWordProblemType('add', this)">加法应用题</button>
+                                <button class="wp-btn" data-type="sub" onclick="setWordProblemType('sub', this)">减法应用题</button>
+                                <button class="wp-btn" data-type="mix" onclick="setWordProblemType('mix', this)">混合应用题</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="word-problem-area">
+                        <div class="wp-stats">
+                            <span>正确: <strong id="wp-correct-count">0</strong></span>
+                            <span>错误: <strong id="wp-wrong-count">0</strong></span>
+                        </div>
+                        <div class="word-problem-card" id="word-problem-card">
+                            <div class="wp-scenario" id="wp-scenario">📝 题目场景</div>
+                            <div class="wp-question" id="wp-question">题目内容</div>
+                            <div class="wp-illustration" id="wp-illustration">🍎🍎🍎</div>
+                        </div>
+                        <div class="wp-options" id="wp-options">
+                            <!-- 动态生成 -->
+                        </div>
+                        <button class="btn btn-primary" onclick="generateWordProblem()">下一题 →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 汉字学习页 - 升级版 -->
+        <div id="chinese-screen" class="screen">
+            <div class="page-header">
+                <button class="back-btn" onclick="showScreen('home-screen')">‹</button>
+                <h2>🏰 汉字城堡</h2>
+                <div class="header-stars">⭐ <span id="chinese-stars">0</span></div>
+            </div>
+
+            <div class="learning-content">
+                <!-- 主标签切换：汉字/偏旁 -->
+                <div class="lesson-tabs chinese-main-tabs">
+                    <button class="tab-btn active" onclick="switchChineseMainTab('chars', this)">汉字学习</button>
+                    <button class="tab-btn" onclick="switchChineseMainTab('radicals', this)">偏旁部首</button>
+                </div>
+
+                <!-- ===== 汉字学习面板 ===== -->
+                <div id="chinese-chars-panel">
+                    <!-- 分类选择器 -->
+                    <div class="category-selector">
+                        <button class="category-btn active" onclick="filterChinese('all')">全部 <span class="count">500</span></button>
+                        <button class="category-btn" onclick="filterChinese('数字')">数字</button>
+                        <button class="category-btn" onclick="filterChinese('自然')">自然</button>
+                        <button class="category-btn" onclick="filterChinese('动物')">动物</button>
+                        <button class="category-btn" onclick="filterChinese('身体')">身体</button>
+                        <button class="category-btn" onclick="filterChinese('家庭')">家庭</button>
+                        <button class="category-btn" onclick="filterChinese('学校')">学校</button>
+                        <button class="category-btn" onclick="filterChinese('食物')">食物</button>
+                        <button class="category-btn" onclick="filterChinese('用品')">用品</button>
+                        <button class="category-btn" onclick="filterChinese('方位')">方位</button>
+                        <button class="category-btn" onclick="filterChinese('动作')">动作</button>
+                        <button class="category-btn" onclick="filterChinese('形容')">形容</button>
+                        <button class="category-btn" onclick="filterChinese('颜色')">颜色</button>
+                        <button class="category-btn" onclick="filterChinese('时间')">时间</button>
+                        <button class="category-btn" onclick="filterChinese('礼貌')">礼貌</button>
+                        <button class="category-btn" onclick="filterChinese('植物')">植物</button>
+                        <button class="category-btn" onclick="filterChinese('器物')">器物</button>
+                        <button class="category-btn" onclick="filterChinese('建筑')">建筑</button>
+                        <button class="category-btn" onclick="filterChinese('人物')">人物</button>
+                        <button class="category-btn" onclick="filterChinese('天文')">天文</button>
+                        <button class="category-btn" onclick="filterChinese('品质')">品质</button>
+                        <button class="category-btn" onclick="filterChinese('情感')">情感</button>
+                    </div>
+
+                    <!-- 搜索框 -->
+                    <div class="search-box">
+                        <input type="text" id="chinese-search" placeholder="搜索汉字..." oninput="searchChinese(this.value)">
+                    </div>
+
+                    <!-- 学习统计 -->
+                    <div class="chinese-stats">
+                        <span>已学习：<strong id="learned-count">0</strong>/500</span>
+                        <span id="current-category">当前：全部</span>
+                        <span class="unknown-stats">不认识：<strong id="unknown-count">0</strong></span>
+                    </div>
+
+                    <!-- 不认识汉字按钮 -->
+                    <div class="unknown-chinese-btn" onclick="showUnknownChinese()">
+                        📋 查看不认识汉字 (<span id="unknown-btn-count">0</span>个)
+                    </div>
+
+                    <!-- 汉字网格 -->
+                    <div class="chinese-grid" id="chinese-grid">
+                        <!-- 动态生成 -->
+                    </div>
+
+                    <!-- 加载更多 -->
+                    <div class="load-more">
+                        <button class="btn" id="load-more-btn" onclick="loadMoreChinese()">加载更多</button>
+                    </div>
+                </div>
+
+                <!-- ===== 偏旁部首面板 ===== -->
+                <div id="chinese-radicals-panel" style="display:none;">
+                    <div class="radical-intro">
+                        <p class="radical-tip">💡 偏旁是汉字的组成部件，掌握偏旁能更好地认识和记忆汉字！</p>
+                    </div>
+                    <div class="radical-category-tabs">
+                        <button class="radical-tab active" onclick="filterRadical('all', this)">全部</button>
+                        <button class="radical-tab" onclick="filterRadical('人', this)">人部</button>
+                        <button class="radical-tab" onclick="filterRadical('水', this)">水部</button>
+                        <button class="radical-tab" onclick="filterRadical('木', this)">木部</button>
+                        <button class="radical-tab" onclick="filterRadical('口', this)">口部</button>
+                        <button class="radical-tab" onclick="filterRadical('心', this)">心部</button>
+                        <button class="radical-tab" onclick="filterRadical('手', this)">手部</button>
+                        <button class="radical-tab" onclick="filterRadical('目', this)">目部</button>
+                        <button class="radical-tab" onclick="filterRadical('日', this)">日部</button>
+                        <button class="radical-tab" onclick="filterRadical('土', this)">土部</button>
+                        <button class="radical-tab" onclick="filterRadical('火', this)">火部</button>
+                    </div>
+                    <div class="radical-grid" id="radical-grid">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 英语学习页 -->
+        <div id="english-screen" class="screen">
+            <div class="page-header">
+                <button class="back-btn" onclick="showScreen('home-screen')">‹</button>
+                <h2>🔤 英文单词</h2>
+                <div class="header-stars">⭐ <span id="english-stars">0</span></div>
+            </div>
+
+            <div class="learning-content">
+                <!-- 单词统计 -->
+                <div class="english-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">总计</span>
+                        <span class="stat-value" id="english-total">0</span>
+                    </div>
+                    <div class="stat-item learned-stat">
+                        <span class="stat-label">已学</span>
+                        <span class="stat-value" id="english-learned">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">未学</span>
+                        <span class="stat-value" id="english-unlearned">0</span>
+                    </div>
+                    <div class="stat-item unknown-stat">
+                        <span class="stat-label">不认识</span>
+                        <span class="stat-value" id="english-unknown">0</span>
+                    </div>
+                </div>
+                
+                <!-- 单词分类标签 -->
+                <div class="english-tabs">
+                    <button class="tab-btn active" onclick="switchEnglishCategory('animals')">动物</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('fruits')">水果</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('colors')">颜色</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('family')">家庭</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('body')">身体</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('numbers')">数字</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('school')">学校</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('food')">食物</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('clothes')">衣服</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('transport')">交通</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('weather')">天气</button>
+                    <button class="tab-btn" onclick="switchEnglishCategory('jobs')">职业</button>
+                </div>
+                
+                <!-- 单词网格 -->
+                <div id="english-words-grid" class="english-words-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏中心 -->
+        <div id="game-screen" class="screen">
+            <div class="page-header">
+                <button class="back-btn" onclick="showScreen('home-screen')">‹</button>
+                <h2>🎮 游戏乐园</h2>
+                <div class="header-stars">⭐ <span id="game-stars">0</span></div>
+            </div>
+
+            <div class="game-list">
+                <div class="game-card" onclick="startGame('balloon')">
+                    <div class="game-icon">🎈</div>
+                    <div class="game-info">
+                        <h3>拼音射气球</h3>
+                        <p>听发音，射中正确的拼音！</p>
+                    </div>
+                    <div class="game-badge">热门</div>
+                </div>
+
+                <div class="game-card" onclick="startGame('mathRace')">
+                    <div class="game-icon">🏎️</div>
+                    <div class="game-info">
+                        <h3>数学赛车</h3>
+                        <p>快速计算，赢得比赛！</p>
+                    </div>
+                    <div class="game-badge new">新</div>
+                </div>
+
+                <div class="game-card" onclick="startGame('chineseMatch')">
+                    <div class="game-icon">🀄</div>
+                    <div class="game-info">
+                        <h3>汉字消消乐</h3>
+                        <p>找到配对的汉字消除！</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-screen')">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">学习</span>
+                </div>
+                <div class="nav-item active" data-screen="game-screen">
+                    <span class="nav-icon">🎮</span>
+                    <span class="nav-label">游戏</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">我的</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏界面 - 气球游戏 -->
+        <div id="balloon-game" class="screen">
+            <div class="game-header">
+                <button class="back-btn" onclick="exitGame()">✕</button>
+                <div class="game-score">⭐ <span id="game-score">0</span></div>
+                <div class="game-timer">⏱️ <span id="game-timer">60</span>s</div>
+            </div>
+
+            <div class="game-play-area" id="balloon-area">
+                <p class="game-target" id="balloon-target">点击 "a" 的气球！</p>
+                <!-- 气球动态生成 -->
+            </div>
+        </div>
+
+        <!-- 游戏界面 - 数学赛车 -->
+        <div id="math-race-game" class="screen">
+            <div class="race-header">
+                <button class="back-btn" onclick="exitGame()">✕</button>
+                <div class="race-stat">🏆 <span id="race-score">0</span></div>
+                <div class="race-stat">⏱️ <span id="race-timer">30</span>s</div>
+            </div>
+
+            <!-- 赛道 -->
+            <div class="race-track">
+                <div class="race-road">
+                    <div class="finish-line">🏁</div>
+                    <div class="race-car" id="race-car">🏎️</div>
+                    <div class="race-start">⚑</div>
+                </div>
+            </div>
+
+            <!-- 题目区 -->
+            <div class="race-question-area">
+                <div class="race-progress-label" id="race-progress">第 1 / 10 题</div>
+                <div class="race-question" id="race-question">? + ? = ?</div>
+                <div class="race-options" id="race-options">
+                    <!-- 动态生成 -->
+                </div>
+                <p class="race-tip">✅答对+3秒 ❌答错-3秒</p>
+            </div>
+        </div>
+
+        <!-- 游戏界面 - 汉字消消乐 -->
+        <div id="chinese-match-game" class="screen">
+            <div class="match-header">
+                <button class="back-btn" onclick="exitGame()">✕</button>
+                <div class="match-stat">步数: <span id="match-moves">0</span></div>
+                <div class="match-stat">配对: <span id="match-matched">0/8</span></div>
+                <div class="match-stat">⏱️ <span id="match-timer">90</span>s</div>
+            </div>
+
+            <div class="match-board" id="match-board">
+                <!-- 动态生成 4x4 卡牌 -->
+            </div>
+            <p class="match-tip">找到相同的汉字，两张配对消除！</p>
+        </div>
+
+        <!-- 个人中心 -->
+        <div id="profile-screen" class="screen">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profile-avatar">🦊</div>
+                <h2 class="profile-name" id="profile-nickname">小朋友</h2>
+                <p class="profile-level">Lv.<span id="profile-level">1</span> 学习新星</p>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <span class="stat-number" id="profile-stars">0</span>
+                    <span class="stat-label">星星总数</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="profile-days">0</span>
+                    <span class="stat-label">学习天数</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="profile-streak">0</span>
+                    <span class="stat-label">连续打卡</span>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>📊 学习进度</h3>
+                <div class="progress-list">
+                    <div class="progress-item">
+                        <span class="progress-label">📖 拼音王国</span>
+                        <div class="progress-bar-small">
+                            <div class="progress-fill-small" id="profile-pinyin" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-value" id="profile-pinyin-text">0%</span>
+                    </div>
+                    <div class="progress-item">
+                        <span class="progress-label">🏰 汉字城堡</span>
+                        <div class="progress-bar-small">
+                            <div class="progress-fill-small" id="profile-chinese" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-value" id="profile-chinese-text">0%</span>
+                    </div>
+                    <div class="progress-item">
+                        <span class="progress-label">🔢 数字乐园</span>
+                        <div class="progress-bar-small">
+                            <div class="progress-fill-small" id="profile-math" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-value" id="profile-math-text">0%</span>
+                    </div>
+                    <div class="progress-item">
+                        <span class="progress-label">🔤 字母花园</span>
+                        <div class="progress-bar-small">
+                            <div class="progress-fill-small" id="profile-english" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-value" id="profile-english-text">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>🏆 成就徽章</h3>
+                <div class="badge-grid" id="badge-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>📅 学习日历</h3>
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>⚙️ 设置</h3>
+                <div class="settings-list">
+                    <div class="setting-item" onclick="showLearningReport()">
+                        <span>📊 学习报告</span>
+                        <span>›</span>
+                    </div>
+                    <div class="setting-item" onclick="showEditProfile()">
+                        <span>✏️ 编辑资料</span>
+                        <span>›</span>
+                    </div>
+                    <div class="setting-item" onclick="toggleSound()">
+                        <span>🔊 声音开关</span>
+                        <span id="sound-status">开启</span>
+                    </div>
+                    <div class="setting-item" onclick="resetProgress()">
+                        <span>🔄 重置进度</span>
+                        <span>›</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-screen')">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">学习</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('game-screen')">
+                    <span class="nav-icon">🎮</span>
+                    <span class="nav-label">游戏</span>
+                </div>
+                <div class="nav-item active" data-screen="profile-screen">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">我的</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学习报告弹窗 -->
+        <div id="report-modal" class="modal">
+            <div class="modal-content report-content">
+                <button class="report-close" onclick="closeModal()">✕</button>
+                <h3>📊 学习报告</h3>
+                <div id="report-body" class="report-body">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑资料弹窗 -->
+        <div id="edit-profile-modal" class="modal">
+            <div class="modal-content">
+                <h3>✏️ 编辑资料</h3>
+                <div class="avatar-selection small">
+                    <div class="avatar-option" data-avatar="🦊" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🦊</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="🐰" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🐰</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="🐻" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🐻</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="🐼" onclick="selectAvatar(this)">
+                        <span class="avatar-icon">🐼</span>
+                    </div>
+                </div>
+                <input type="text" id="edit-nickname" placeholder="输入新名字" maxlength="8">
+                <div class="modal-buttons">
+                    <button class="btn" onclick="closeModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 奖励弹窗 -->
+        <div id="reward-modal" class="modal">
+            <div class="modal-content reward-content">
+                <div class="reward-icon">🎉</div>
+                <h3 id="reward-title">太棒了！</h3>
+                <p id="reward-message">获得 5 颗星星！</p>
+                <div class="reward-stars" id="reward-stars">
+                    ⭐⭐⭐⭐⭐
+                </div>
+                <button class="btn btn-primary" onclick="closeRewardModal()">继续加油！</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- ========== 宠物商店页面 ========== -->
+        <div id="pet-shop-screen" class="screen">
+            <div class="shop-header">
+                <button class="back-btn" onclick="showScreen('home-screen')">← 返回</button>
+                <h2 class="shop-title">🛒 宠物商店</h2>
+                <div class="shop-points">💎 <span id="shop-points-total">0</span> 积分</div>
+            </div>
+
+            <div class="shop-section">
+                <h3 class="shop-section-title">🦊 解锁宠物</h3>
+                <div class="shop-pet-list" id="shop-pet-list">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+
+            <div class="shop-section">
+                <h3 class="shop-section-title">🎒 道具商店</h3>
+                <div class="shop-item-list" id="shop-item-list">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 宠物小屋页面 ========== -->
+        <div id="pet-house-screen" class="screen">
+            <div class="pet-house-header">
+                <button class="back-btn" onclick="showScreen('home-screen')">← 返回</button>
+                <h2 class="pet-house-title">🏠 宠物小屋</h2>
+            </div>
+
+            <div class="pet-house-main">
+                <!-- 宠物展示区 -->
+                <div class="pet-display">
+                    <div class="pet-avatar-large" id="house-pet-avatar">🦊</div>
+                    <div class="pet-name-large" id="house-pet-name">小狐狸</div>
+                    <div class="pet-level-badge" id="house-pet-level">Lv.1</div>
+                </div>
+
+                <!-- 经验条 -->
+                <div class="pet-exp-bar">
+                    <div class="pet-exp-fill" id="house-pet-exp-bar" style="width: 0%"></div>
+                    <span class="pet-exp-text" id="house-pet-exp-text">0 / 100 EXP</span>
+                </div>
+
+                <!-- 状态栏 -->
+                <div class="pet-status-grid">
+                    <div class="pet-status-item">
+                        <span class="pet-status-label">😊 快乐度</span>
+                        <div class="pet-status-bar"><div id="house-pet-happiness" style="width:100%"></div></div>
+                        <span class="pet-status-value" id="house-pet-happiness-val">100%</span>
+                    </div>
+                    <div class="pet-status-item">
+                        <span class="pet-status-label">💪 健康度</span>
+                        <div class="pet-status-bar"><div id="house-pet-health" style="width:100%"></div></div>
+                        <span class="pet-status-value" id="house-pet-health-val">100%</span>
+                    </div>
+                </div>
+
+                <!-- 互动按钮 -->
+                <div class="pet-interact-buttons">
+                    <button class="btn-interact btn-feed" onclick="feedPet()">🍖 喂食</button>
+                    <button class="btn-interact btn-play" onclick="playWithPet()">🧸 玩耍</button>
+                    <button class="btn-interact btn-heal" onclick="healPet()">💊 治疗</button>
+                </div>
+
+                <!-- 技能展示 -->
+                <div class="pet-skills-section">
+                    <h4>✨ 已解锁技能</h4>
+                    <div class="pet-skills-list" id="house-pet-skills">
+                        <span class="no-skills">暂无技能，多多升级解锁！</span>
+                    </div>
+                </div>
+
+                <!-- 宠物物品栏 -->
+                <div class="pet-inventory-section">
+                    <h4>🎒 物品栏</h4>
+                    <div class="pet-inventory-list" id="house-pet-inventory">
+                        <span class="no-items">空空如也，去商店买点吧！</span>
+                    </div>
+                </div>
+
+                <!-- 宠物切换 -->
+                <div class="pet-switch-section">
+                    <h4>🔄 切换宠物</h4>
+                    <div class="pet-switch-list" id="house-pet-switch">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script src="data-chinese.js"></script>
+    <script src="audio.js"></script>
+    <script src="points.js"></script>
+    <script src="pet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分宠物系统演示</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .demo-container {
+            max-width: 480px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .demo-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .demo-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .demo-pet {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+        .pet-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #9C27B0;
+        }
+        .demo-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-section">
+            <h2 class="demo-title">🎮 积分宠物系统演示</h2>
+
+            <!-- 宠物状态演示 -->
+            <div class="demo-pet">
+                <div>
+                    <h3>🐾 我的宠物</h3>
+                    <p id="demo-pet-name">小狐狸 Lv.1</p>
+                    <p>😊 <span id="demo-pet-happiness">100%</span></p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 32px;">🦊</div>
+                    <button class="demo-button" onclick="simulatePetInteraction()">互动 +5经验</button>
+                </div>
+            </div>
+
+            <!-- 积分统计 -->
+            <div class="pet-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="demo-today-points">0</div>
+                    <div>今日积分</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="demo-total-points">0</div>
+                    <div>总积分</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="demo-pet-level">1</div>
+                    <div>宠物等级</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="demo-pet-exp">0</div>
+                    <div>宠物经验</div>
+                </div>
+            </div>
+
+            <button class="demo-button" onclick="simulateTaskCompletion('数学')">完成数学任务 (+25分)</button>
+            <button class="demo-button" onclick="simulateTaskCompletion('汉字')">完成汉字任务 (+30分)</button>
+            <button class="demo-button" onclick="resetDemo()">重置演示</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="points.js"></script>
+    <script src="pet.js"></script>
+    <script>
+        // 模拟演示数据
+        function initDemoData() {
+            if (!userData) return;
+
+            // 确保有测试数据
+            if (!userData.pets || userData.pets.length === 0) {
+                userData.pets = [{
+                    id: 'fox_pet',
+                    type: 'fox',
+                    name: '小狐狸',
+                    level: 1,
+                    experience: 0,
+                    happiness: 100,
+                    health: 100,
+                    skills: [],
+                    items: [],
+                    unlockedAt: new Date().toISOString(),
+                    lastInteraction: new Date().toISOString()
+                }];
+            }
+
+            updateDemoDisplay();
+        }
+
+        function updateDemoDisplay() {
+            const pet = userData.pets[0];
+
+            document.getElementById('demo-pet-name').textContent =
+                `${pet.name} Lv.${pet.level}`;
+
+            document.getElementById('demo-pet-happiness').textContent =
+                `${pet.happiness}%`;
+
+            document.getElementById('demo-today-points').textContent =
+                userData.points.today || 0;
+
+            document.getElementById('demo-total-points').textContent =
+                userData.points.total || 0;
+
+            document.getElementById('demo-pet-level').textContent =
+                pet.level || 1;
+
+            document.getElementById('demo-pet-exp').textContent =
+                Math.floor(pet.experience) || 0;
+        }
+
+        function simulatePetInteraction() {
+            if (userData.pets && userData.pets.length > 0) {
+                const pet = userData.pets[0];
+
+                // 添加互动经验
+                pet.experience += 5;
+                pet.happiness = Math.min(100, pet.happiness + 5);
+
+                // 检查是否升级
+                const oldLevel = pet.level;
+                pet.level = petSystem.calculateLevel(pet.experience);
+
+                if (pet.level > oldLevel) {
+                    pet.happiness = Math.min(100, pet.happiness + 10);
+                    showDemoMessage(`🎉 ${pet.name} 升级到 Lv.${pet.level}！`);
+                }
+
+                pet.lastInteraction = new Date().toISOString();
+                saveUserData();
+
+                updateDemoDisplay();
+                showDemoMessage(`🐾 ${pet.name} 很开心，获得5点经验！`);
+            }
+        }
+
+        function simulateTaskCompletion(taskName) {
+            const pointsMap = {
+                '数学': 25,
+                '汉字': 30,
+                '古诗': 35
+            };
+
+            const earnedPoints = pointsMap[taskName] || 25;
+
+            // 添加积分
+            userData.points.total += earnedPoints;
+            userData.points.today += earnedPoints;
+
+            // 更新宠物成长
+            petSystem.updateGrowth(earnedPoints).then(result => {
+                if (result && result.newLevel > result.oldLevel) {
+                    showDemoMessage(`🎉 宠物升级到 Lv.${result.newLevel}！`);
+                }
+            });
+
+            saveUserData();
+
+            updateDemoDisplay();
+            showDemoMessage(`✅ 完成${taskName}任务！获得${earnedPoints}积分！`);
+        }
+
+        function resetDemo() {
+            // 重新初始化用户数据
+            userData = JSON.parse(JSON.stringify(defaultUserData));
+
+            // 设置默认宠物
+            userData.pets = [{
+                id: 'fox_pet',
+                type: 'fox',
+                name: '小狐狸',
+                level: 1,
+                experience: 0,
+                happiness: 100,
+                health: 100,
+                skills: [],
+                items: [],
+                unlockedAt: new Date().toISOString(),
+                lastInteraction: new Date().toISOString()
+            }];
+
+            saveUserData();
+            updateDemoDisplay();
+            showDemoMessage('🔄 演示数据已重置');
+        }
+
+        function showDemoMessage(message) {
+            // 创建临时消息显示
+            const messageEl = document.createElement('div');
+            messageEl.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 25px;
+                z-index: 1000;
+                animation: slideDown 0.5s ease;
+                font-weight: bold;
+            `;
+            messageEl.textContent = message;
+
+            document.body.appendChild(messageEl);
+
+            setTimeout(() => {
+                messageEl.style.animation = 'slideUp 0.5s ease';
+                setTimeout(() => {
+                    if (messageEl.parentNode) {
+                        messageEl.parentNode.removeChild(messageEl);
+                    }
+                }, 500);
+            }, 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translate(-50%, -100px); opacity: 0; }
+                to { transform: translate(-50%, 0); opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translate(-50%, 0); opacity: 1; }
+                to { transform: translate(-50%, -100px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData(); // 加载现有数据
+            initDemoData();
+        });
+    </script>
+</body>
+</html>
